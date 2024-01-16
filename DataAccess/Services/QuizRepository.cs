@@ -46,6 +46,8 @@ public class QuizRepository
     {
         var filter = Builders<Quiz>.Filter.Empty;
 
+        //Finns det inget bättre sätt att göra det här på?
+
         List<QuestionRecord> questionList = new List<QuestionRecord>();
         var allQuizes = _quizes.Find(filter).ToList().Select(q =>
             new Quiz());
@@ -56,7 +58,6 @@ public class QuizRepository
         {
             quizQuestions = quiz.Questions;
         }
-
 
         var allQuizRecords = _quizes.Find(filter).ToList().Select(q =>
             new QuizRecord(q.Id.ToString(), q.Name,q.Description,q.Questions));
