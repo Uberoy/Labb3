@@ -3,9 +3,7 @@ using Labb3Console.Models;
 
 var _repo = new QuizRepository();
 
-AddQuiz();
-
-
+PrintAllQuizes();
 
 
 void AskAllQuestions()
@@ -48,6 +46,26 @@ void PrintAllQuestions()
         foreach (var answer in question.Answers)
         {
             Console.WriteLine(answer);
+        }
+    }
+}
+
+void PrintAllQuizes()
+{
+    var allQuizes = _repo.GetAllQuizzesWithQuestions();
+
+    foreach (var quiz in allQuizes)
+    {
+        Console.WriteLine($"Namn på Quiz: {quiz.Name}");
+        Console.WriteLine($"Beskrivning av Quiz: {quiz.Description}");
+
+        foreach (var question in quiz.Questions)
+        {
+            Console.WriteLine($"Beskrivning av fråga: {question.Description}");
+            foreach (var answer in question.Answers)
+            {
+                Console.WriteLine($"Svarsalternativ på fråga: {answer}");
+            }
         }
     }
 }

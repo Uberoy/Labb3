@@ -42,28 +42,54 @@ public class QuizRepository
         return allQuestions.ToList();
     }
 
-    public List<QuizRecord> GetAllQuizes()
+    public List<QuizRecord> GetAllQuizzesWithQuestions()
     {
-        var filter = Builders<Quiz>.Filter.Empty;
+        var allQuizzes = _quizes.Find(Builders<Quiz>.Filter.Empty).ToList();
+        var quizDTOs = new List<QuizRecord>();
 
-        //Finns det inget bättre sätt att göra det här på?
-
-        List<QuestionRecord> questionList = new List<QuestionRecord>();
-        var allQuizes = _quizes.Find(filter).ToList().Select(q =>
-            new Quiz());
-
-        List<Question> quizQuestions = new List<Question>();
-
-        foreach (var quiz in allQuizes as List<Quiz>)
+        foreach (var quiz in allQuizzes)
         {
-            quizQuestions = quiz.Questions;
+            var questionIds = quiz.Questions.Select(q => q.Id).ToList();
+            var questionFilter = Builders<Question>.Filter.In(q => q.Id, questionIds);
+            var questions = _questions.Find(questionFilter).ToList();
+
+            var quizDTO = new QuizRecord
+            ( 
+                quiz.Id.ToString(), 
+                quiz.Name, 
+                quiz.Description, 
+                questions.Select(q =>
+                    new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer)).ToList()
+            );
+
+            quizDTOs.Add(quizDTO);
         }
 
-        var allQuizRecords = _quizes.Find(filter).ToList().Select(q =>
-            new QuizRecord(q.Id.ToString(), q.Name,q.Description,q.Questions));
-
-        return allQuizes.ToList();
+        return quizDTOs;
     }
+
+    //public List<QuizRecord> GetAllQuizes()
+    //{
+    //    var filter = Builders<Quiz>.Filter.Empty;
+
+    //    //Finns det inget bättre sätt att göra det här på?
+
+    //    List<QuestionRecord> questionList = new List<QuestionRecord>();
+    //    var allQuizes = _quizes.Find(filter).ToList().Select(q =>
+    //        new Quiz());
+
+    //    List<Question> quizQuestions = new List<Question>();
+
+    //    foreach (var quiz in allQuizes as List<Quiz>)
+    //    {
+    //        quizQuestions = quiz.Questions;
+    //    }
+
+    //    var allQuizRecords = _quizes.Find(filter).ToList().Select(q =>
+    //        new QuizRecord(q.Id.ToString(), q.Name,q.Description,q.Questions));
+
+    //    return allQuizes.ToList();
+    //}
 
     public void AddQuiz(QuizRecord quizRecord)
     {
