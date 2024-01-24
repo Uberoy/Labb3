@@ -3,9 +3,47 @@ using Labb3Console.Models;
 
 var _repo = new QuizRepository();
 
-PrintAllQuizes();
+RemoveQuestionFromQuiz();
 
 
+
+void AddQuestionToQuiz()
+{
+    PrintAllQuizes();
+
+    Console.WriteLine("Vilken Quiz vill du lägga till en fråga till?");
+
+    string selectedQuiz;
+    Console.WriteLine("Quiz: ");
+    selectedQuiz = Console.ReadLine();
+
+    Console.WriteLine("Vilken fråga vill du lägga till?");
+
+    string selectedQuestion;
+    Console.WriteLine("Fråga: ");
+    selectedQuestion = Console.ReadLine();
+
+    _repo.AddQuestionToQuiz(selectedQuiz, selectedQuestion);
+}
+
+void RemoveQuestionFromQuiz()
+{
+    PrintAllQuizes();
+
+    Console.WriteLine("Vilken Quiz vill du ta bort en fråga från?");
+
+    string selectedQuiz;
+    Console.WriteLine("Quiz: ");
+    selectedQuiz = Console.ReadLine();
+
+    Console.WriteLine("Vilken fråga vill du ta bort?");
+
+    string selectedQuestion;
+    Console.WriteLine("Fråga: ");
+    selectedQuestion = Console.ReadLine();
+
+    _repo.RemoveQuestionFromQuiz(selectedQuiz, selectedQuestion);
+}
 void AskAllQuestions()
 {
     var allQuestions = _repo.GetAllQuestions();
@@ -42,6 +80,7 @@ void PrintAllQuestions()
 
     foreach (var question in allQuestions)
     {
+        Console.WriteLine($"Id: {question.Id}");
         Console.WriteLine(question.Description);
         foreach (var answer in question.Answers)
         {
@@ -56,11 +95,13 @@ void PrintAllQuizes()
 
     foreach (var quiz in allQuizes)
     {
+        Console.WriteLine($"Id(Quiz): {quiz.Id}");
         Console.WriteLine($"Namn på Quiz: {quiz.Name}");
         Console.WriteLine($"Beskrivning av Quiz: {quiz.Description}");
 
         foreach (var question in quiz.Questions)
         {
+            Console.WriteLine($"Id(Fråga): {question.Id}");
             Console.WriteLine($"Beskrivning av fråga: {question.Description}");
             foreach (var answer in question.Answers)
             {
@@ -115,11 +156,6 @@ void AddQuiz()
     var quizRecord = new QuizRecord("", newQuiz.Name, newQuiz.Description, new List<QuestionRecord>());
 
     _repo.AddQuiz(quizRecord);
-}
-
-void AddQuestionToQuiz()
-{
-
 }
 
 void AddQuizDebug()

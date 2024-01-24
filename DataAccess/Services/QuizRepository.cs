@@ -33,6 +33,36 @@ public class QuizRepository
         _questions.InsertOne(newQuestion);
     }
 
+    public void AddQuestionToQuiz(string quizId, string questionId)
+    {
+        var quizObjectId = ObjectId.Parse(quizId);
+        var questionObjectId = ObjectId.Parse(questionId);
+
+        var quizFilter = Builders<Quiz>.Filter.Eq(q => q.Id, quizObjectId);
+        var questionFilter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+
+        var foundQuestion = _questions.Find(questionFilter).FirstOrDefault();
+
+        var update = Builders<Quiz>.Update.Push(q => q.Questions, foundQuestion);
+
+        _quizes.UpdateOne(quizFilter, update);
+    }
+
+    public void RemoveQuestionFromQuiz(string quizId, string questionId)
+    {
+        var quizObjectId = ObjectId.Parse(quizId);
+        var questionObjectId = ObjectId.Parse(questionId);
+
+        var quizFilter = Builders<Quiz>.Filter.Eq(q => q.Id, quizObjectId);
+        var questionFilter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+
+        var foundQuestion = _questions.Find(questionFilter).FirstOrDefault();
+
+        var update = Builders<Quiz>.Update.Pull(q => q.Questions, foundQuestion);
+
+        _quizes.UpdateOne(quizFilter, update);
+    }
+
     public List<QuestionRecord> GetAllQuestions()
     {
         var filter = Builders<Question>.Filter.Empty;
@@ -40,6 +70,39 @@ public class QuizRepository
             new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer));
 
         return allQuestions.ToList();
+    }
+
+    public List<QuestionRecord> GetAllQuestionsFromQuiz(string quizId)
+    {
+        var quizObjectId = ObjectId.Parse(quizId);
+
+        var filter = Builders<Quiz>.Filter.Eq(q => q.Id, quizObjectId);
+        var quiz = _quizes.Find(filter).FirstOrDefault();
+
+        var questions = quiz.Questions.Select(q =>
+            new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer)).ToList();
+
+        return questions;
+    }
+
+    public List<string> GetAllAnswersFromQuestion(string questionId)
+    {
+        var questionObjectId = ObjectId.Parse(questionId);
+
+        var filter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+        var allAnswers = _questions.Find(filter).ToList().SelectMany(a => a.Answers);
+
+        return allAnswers.ToList();
+    }
+
+    public int GetCorrectAnswerFromQuestion(string questionId)
+    {
+        var questionObjectId = ObjectId.Parse(questionId);
+        var filter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+
+        var correctAnswer = _questions.Find(filter).FirstOrDefault();
+
+        return correctAnswer.CorrectAnswer;
     }
 
     public List<QuizRecord> GetAllQuizzesWithQuestions()
@@ -67,29 +130,6 @@ public class QuizRepository
 
         return quizDTOs;
     }
-
-    //public List<QuizRecord> GetAllQuizes()
-    //{
-    //    var filter = Builders<Quiz>.Filter.Empty;
-
-    //    //Finns det inget bättre sätt att göra det här på?
-
-    //    List<QuestionRecord> questionList = new List<QuestionRecord>();
-    //    var allQuizes = _quizes.Find(filter).ToList().Select(q =>
-    //        new Quiz());
-
-    //    List<Question> quizQuestions = new List<Question>();
-
-    //    foreach (var quiz in allQuizes as List<Quiz>)
-    //    {
-    //        quizQuestions = quiz.Questions;
-    //    }
-
-    //    var allQuizRecords = _quizes.Find(filter).ToList().Select(q =>
-    //        new QuizRecord(q.Id.ToString(), q.Name,q.Description,q.Questions));
-
-    //    return allQuizes.ToList();
-    //}
 
     public void AddQuiz(QuizRecord quizRecord)
     {
@@ -120,12 +160,5 @@ public class QuizRepository
         };
 
         return newQuestion;
-    }
-
-    public QuestionRecord ConvertQuestionToQuestionRecord(Question question)
-    {
-        var newQuestionRecord = new QuestionRecord(question.Id.ToString(), question.Description, question.Answers, question.CorrectAnswer);
-
-        return newQuestionRecord;
     }
 }

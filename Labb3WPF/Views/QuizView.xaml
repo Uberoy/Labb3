@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="Labb3WPF.Views.QuizView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Labb3WPF.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ListView
+            Grid.Column="0"
+            Grid.Row="0"
+            Name="QuizesLv"
+            ItemsSource="{Binding Quizes}"
+            SelectedItem="{Binding SelectedQuiz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            SelectionChanged="QuizesLv_OnSelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Quiz Id"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Quiz Name"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView
+            Grid.Column="1"
+            Grid.Row="0"
+            Name="QuestionsInQuizLv"
+            ItemsSource="{Binding QuestionsInQuiz}"
+            SelectedItem="{Binding SelectedQuestionInQuiz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            SelectionChanged="QuestionsInQuizLv_OnSelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Question Id"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Description}" Header="Question"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView
+            Grid.Column="2"
+            Grid.Row="0"
+            Name="QuestionsAvailableLv"
+            ItemsSource="{Binding QuestionsAvailable}"
+            SelectedItem="{Binding SelectedQuestionAvailable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            SelectionChanged="QuestionsAvailableLv_OnSelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Question Id"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Description}" Header="Question"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView
+            Grid.Column="1"
+            Grid.Row="1"
+            Name="AnswersInQuestionQuizLv"
+            ItemsSource="{Binding AnswersInQuestionQuiz}"
+            SelectedItem="{Binding SelectedAnswersInQuestionQuiz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Text}" Header="Answer"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding IsCorrect}" Header="Correct"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView
+            Grid.Column="2"
+            Grid.Row="1"
+            Name="AnswersInQuestionAvailableLv"
+            ItemsSource="{Binding AnswersInQuestionAvailable}"
+            SelectedItem="{Binding SelectedAnswersAvailable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Text}" Header="Answer"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding IsCorrect}" Header="Correct"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button
+            Name="RemoveBtn"
+            Grid.Column="1"
+            Grid.Row="2"
+            Content="Remove"
+            Click="RemoveBtn_OnClick"></Button>
+        <Button
+            Name="AddBtn"
+            Grid.Column="2"
+            Grid.Row="2"
+            Content="Add"
+            Click="AddBtn_OnClick"/>
+    </Grid>
+</UserControl>
