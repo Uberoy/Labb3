@@ -52,6 +52,7 @@ namespace Labb3WPF.Views
 
             foreach (var question in allQuestions)
             {
+                //QuestionsAvailable.Add(new QuestionModel(){Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description, Categories = question.Categories});
                 QuestionsAvailable.Add(new QuestionModel(){Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description});
             }
 
@@ -81,6 +82,7 @@ namespace Labb3WPF.Views
 
             foreach (var question in questionsInQuiz)
             {
+                //QuestionsInQuiz.Add(new QuestionModel(){Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description, Categories = question.Categories});
                 QuestionsInQuiz.Add(new QuestionModel(){Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description});
             }
         }

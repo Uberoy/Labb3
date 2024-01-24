@@ -8,6 +8,7 @@ public class QuizRepository
 {
     private readonly IMongoCollection<Question> _questions;
     private readonly IMongoCollection<Quiz> _quizes;
+    private readonly IMongoCollection<Category> _categories;
 
     public QuizRepository()
     {
@@ -19,6 +20,8 @@ public class QuizRepository
 
         _questions = database.GetCollection<Question>("Questions", new MongoCollectionSettings() { AssignIdOnInsert = true });
         _quizes = database.GetCollection<Quiz>("Quizes", new MongoCollectionSettings() { AssignIdOnInsert = true });
+        _categories = database.GetCollection<Category>("Categories", new MongoCollectionSettings() { AssignIdOnInsert = true });
+
     }
 
     public void AddQuestion(QuestionRecord questionRecord)
@@ -48,6 +51,21 @@ public class QuizRepository
         _quizes.UpdateOne(quizFilter, update);
     }
 
+    public void AddCategoryToQuestion(string questionId, string categoryId)
+    {
+        var questionObjectId = ObjectId.Parse(questionId);
+        var categoryObjectId = ObjectId.Parse(categoryId);
+
+        var questionFilter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+        var categoryFilter = Builders<Category>.Filter.Eq(c => c.Id, categoryObjectId);
+
+        var foundCategory = _categories.Find(categoryFilter).FirstOrDefault();
+
+        var update = Builders<Question>.Update.Push(q => q.Categories, foundCategory);
+
+        _questions.UpdateOne(questionFilter, update);
+    }
+
     public void RemoveQuestionFromQuiz(string quizId, string questionId)
     {
         var quizObjectId = ObjectId.Parse(quizId);
@@ -67,9 +85,19 @@ public class QuizRepository
     {
         var filter = Builders<Question>.Filter.Empty;
         var allQuestions = _questions.Find(filter).ToList().Select(q =>
-            new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer));
+            new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer, q.Categories.Select(c =>
+                new CategoryRecord(c.Id.ToString(), c.Name)
+            ).ToList()));
 
         return allQuestions.ToList();
+    }
+
+    public List<CategoryRecord> GetAllCategories()
+    {
+        var filter = Builders<Category>.Filter.Empty;
+        var allCategories = _categories.Find(filter).ToList().Select(c => new CategoryRecord(c.Id.ToString(), c.Name));
+
+        return allCategories.ToList();
     }
 
     public List<QuestionRecord> GetAllQuestionsFromQuiz(string quizId)
@@ -80,7 +108,9 @@ public class QuizRepository
         var quiz = _quizes.Find(filter).FirstOrDefault();
 
         var questions = quiz.Questions.Select(q =>
-            new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer)).ToList();
+            new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer, q.Categories.Select(c =>
+                new CategoryRecord(c.Id.ToString(), c.Name)
+            ).ToList())).ToList();
 
         return questions;
     }
@@ -108,7 +138,7 @@ public class QuizRepository
     public List<QuizRecord> GetAllQuizzesWithQuestions()
     {
         var allQuizzes = _quizes.Find(Builders<Quiz>.Filter.Empty).ToList();
-        var quizDTOs = new List<QuizRecord>();
+        var quizRecords = new List<QuizRecord>();
 
         foreach (var quiz in allQuizzes)
         {
@@ -116,19 +146,27 @@ public class QuizRepository
             var questionFilter = Builders<Question>.Filter.In(q => q.Id, questionIds);
             var questions = _questions.Find(questionFilter).ToList();
 
-            var quizDTO = new QuizRecord
-            ( 
-                quiz.Id.ToString(), 
-                quiz.Name, 
-                quiz.Description, 
+            var quizRecord = new QuizRecord
+            (
+                quiz.Id.ToString(),
+                quiz.Name,
+                quiz.Description,
                 questions.Select(q =>
-                    new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer)).ToList()
+                    new QuestionRecord(
+                        q.Id.ToString(),
+                        q.Description,
+                        q.Answers,
+                        q.CorrectAnswer,
+                        q.Categories.Select(c =>
+                            new CategoryRecord(c.Id.ToString(), c.Name)
+                        ).ToList()
+                    )).ToList()
             );
 
-            quizDTOs.Add(quizDTO);
+            quizRecords.Add(quizRecord);
         }
 
-        return quizDTOs;
+        return quizRecords;
     }
 
     public void AddQuiz(QuizRecord quizRecord)

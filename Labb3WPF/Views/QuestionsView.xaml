@@ -7,37 +7,69 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <ListView
-            Name ="QuestionsLv"
+            Name="QuestionsLv"
             ItemsSource="{Binding Questions}"
-            SelectedItem ="{Binding SelectedQuestion, Mode = TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            SelectedItem="{Binding SelectedQuestion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             SelectionChanged="QuestionsLv_OnSelectionChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Id}" Header ="Question Id" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Description}" Header ="Question" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Question Id" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Description}" Header="Question" />
+                    <GridViewColumn Header="Categories">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding Categories}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
-        <Grid Grid.Column="1">
-            <ListView
-                Grid.Column="1"
-                Name="AnswersLv"
-                ItemsSource="{Binding Answers}"
-                SelectedItem="{Binding SelectedAnswer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn DisplayMemberBinding="{Binding Text}" Header="Answer"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding IsCorrect}" Header="Correct"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-
-        </Grid>
-
+        <ListView
+            Grid.Column="1"
+            Grid.Row="0"
+            Name="CategoriesLv"
+            ItemsSource="{Binding Categories}"
+            SelectedItem="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Category"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView
+            Grid.Column="0"
+            Grid.Row="1"
+            Name="AnswersLv"
+            ItemsSource="{Binding Answers}"
+            SelectedItem="{Binding SelectedAnswer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Text}" Header="Answer"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding IsCorrect}" Header="Correct"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button
+            Grid.Column="1"
+            Grid.Row="1"
+            Name="AddCategoryToQuestionBtn"
+            Content="Add to question"
+            Click="AddCategoryToQuestionBtn_OnClick"></Button>
     </Grid>
 </UserControl>

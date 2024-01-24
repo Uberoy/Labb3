@@ -26,4 +26,12 @@ public class QuestionModel
         get { return _correctAnswer; }
         set { _correctAnswer = value; }
     }
+
+    private List<CategoryModel> _categories { get; set; }
+
+    public List<CategoryModel> Categories
+    {
+        get { return _categories; }
+        set { _categories = value; }
+    }
 }

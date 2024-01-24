@@ -26,9 +26,11 @@ namespace Labb3WPF.Views
 
         public ObservableCollection<QuestionModel> Questions { get; set; } = new();
         public ObservableCollection<AnswerModel> Answers { get; set; } = new();
+        public ObservableCollection<CategoryModel> Categories { get; set; } = new();
 
         public QuestionModel? SelectedQuestion { get; set; } = new();
-        public QuestionModel? SelectedAnswer { get; set; } = new();
+        public AnswerModel? SelectedAnswer { get; set; } = new();
+        public CategoryModel? SelectedCategory { get; set; } = new();
 
 
         public QuestionsView()
@@ -43,7 +45,15 @@ namespace Labb3WPF.Views
 
             foreach (var question in allQuestions)
             {
-                Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description });
+                //Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description, Categories = question.Categories});
+                Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description});
+            }
+
+            var allCategories = _repo.GetAllCategories();
+
+            foreach (var category in allCategories)
+            {
+                Categories.Add(new CategoryModel(){ Id = category.Id, Name = category.Name});
             }
         }
 
@@ -71,6 +81,16 @@ namespace Labb3WPF.Views
                     Answers.Add(new AnswerModel() { Text = allAnswers[i], IsCorrect = false });
                 }
             }
+        }
+
+        private void AddCategoryToQuestionBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedQuestion is null || SelectedCategory is null)
+            {
+                return;
+            }
+
+            _repo.AddCategoryToQuestion(SelectedQuestion.Id, SelectedCategory.Id);
         }
     }
 }

@@ -42,6 +42,19 @@
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Question Id"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Description}" Header="Question"/>
+                    <GridViewColumn Header="Categories">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding Categories}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -56,6 +69,19 @@
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Question Id"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Description}" Header="Question"/>
+                    <GridViewColumn Header="Categories">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding Categories}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
