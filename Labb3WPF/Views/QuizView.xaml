@@ -28,6 +28,7 @@
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Quiz Id"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Quiz Name"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Description}" Header="Description"/>
                 </GridView>
             </ListView.View>
         </ListView>

@@ -14,8 +14,15 @@ public class QuizRepository
         var hostName = "localhost";
         var port = "27017";
         var databaseName = "QuizDb";
-        var client = new MongoClient($"mongodb://{hostName}:{port}");
+        //var client = new MongoClient($"mongodb://{hostName}:{port}");
+        //var database = client.GetDatabase(databaseName);
+
+        const string connectionUri = "mongodb+srv://uberoy:apa123@cluster0.u24vsdz.mongodb.net/?retryWrites=true&w=majority";
+        var settings = MongoClientSettings.FromConnectionString(connectionUri);
+        settings.ServerApi = new ServerApi(ServerApiVersion.V1);
+        var client = new MongoClient(settings);
         var database = client.GetDatabase(databaseName);
+
 
         _questions = database.GetCollection<Question>("Questions", new MongoCollectionSettings() { AssignIdOnInsert = true });
         _quizes = database.GetCollection<Quiz>("Quizes", new MongoCollectionSettings() { AssignIdOnInsert = true });
@@ -108,7 +115,7 @@ public class QuizRepository
     public List<QuizRecord> GetAllQuizzesWithQuestions()
     {
         var allQuizzes = _quizes.Find(Builders<Quiz>.Filter.Empty).ToList();
-        var quizDTOs = new List<QuizRecord>();
+        var quizRecords = new List<QuizRecord>();
 
         foreach (var quiz in allQuizzes)
         {
@@ -116,19 +123,24 @@ public class QuizRepository
             var questionFilter = Builders<Question>.Filter.In(q => q.Id, questionIds);
             var questions = _questions.Find(questionFilter).ToList();
 
-            var quizDTO = new QuizRecord
-            ( 
-                quiz.Id.ToString(), 
-                quiz.Name, 
-                quiz.Description, 
+            var quizRecord = new QuizRecord
+            (
+                quiz.Id.ToString(),
+                quiz.Name,
+                quiz.Description,
                 questions.Select(q =>
-                    new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer)).ToList()
+                    new QuestionRecord(
+                        q.Id.ToString(),
+                        q.Description,
+                        q.Answers,
+                        q.CorrectAnswer
+                    )).ToList()
             );
 
-            quizDTOs.Add(quizDTO);
+            quizRecords.Add(quizRecord);
         }
 
-        return quizDTOs;
+        return quizRecords;
     }
 
     public void AddQuiz(QuizRecord quizRecord)

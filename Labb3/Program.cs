@@ -3,7 +3,7 @@ using Labb3Console.Models;
 
 var _repo = new QuizRepository();
 
-RemoveQuestionFromQuiz();
+AddQuestion();
 
 
 

@@ -55,13 +55,6 @@ namespace Labb3WPF.Views
                 QuestionsAvailable.Add(new QuestionModel(){Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description});
             }
 
-            //foreach (var quiz in allQuizes)
-            //{
-            //    Quizes.Add(new QuizModel() { Id = quiz.Id, Name = quiz.Name, Description = quiz.Description, Questions = quiz.Questions });
-            //}
-
-            //Den utkommenterade varianten fungerar bara om den utkommenterade propertyn i QuizModel läggs tillbaka. Frågan är om den propertyn äns behövs? Jag är inte 100 % säker på vad en
-            //model bör innehålla, vad som är viktigt/koscher osv.
             foreach (var quiz in allQuizes)
             {
                 Quizes.Add(new QuizModel() { Id = quiz.Id, Name = quiz.Name, Description = quiz.Description});

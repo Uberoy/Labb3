@@ -19,12 +19,4 @@ public class QuizModel
         get { return _description; }
         set { _description = value; }
     }
-
-    //private List<QuestionModel> _questions { get; set; }
-
-    //public List<QuestionModel> Questions
-    //{
-    //    get { return _questions; }
-    //    set { _questions = value; }
-    //}
 }
