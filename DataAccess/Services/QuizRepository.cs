@@ -14,8 +14,10 @@ public class QuizRepository
     {
         var hostName = "localhost";
         var port = "27017";
-        var databaseName = "QuizDb";
-        var client = new MongoClient($"mongodb://{hostName}:{port}");
+        var databaseName = "QuizDbAdvanced";
+        //var client = new MongoClient($"mongodb://{hostName}:{port}");
+        var client =
+            new MongoClient("mongodb+srv://uberoy:apa123@cluster0.u24vsdz.mongodb.net/?retryWrites=true&w=majority");
         var database = client.GetDatabase(databaseName);
 
         _questions = database.GetCollection<Question>("Questions", new MongoCollectionSettings() { AssignIdOnInsert = true });
@@ -23,6 +25,9 @@ public class QuizRepository
         _categories = database.GetCollection<Category>("Categories", new MongoCollectionSettings() { AssignIdOnInsert = true });
 
     }
+
+    //Gamla funktioner pre-kategorier
+    #region
 
     public void AddQuestion(QuestionRecord questionRecord)
     {
@@ -35,6 +40,7 @@ public class QuizRepository
 
         _questions.InsertOne(newQuestion);
     }
+
 
     public void AddQuestionToQuiz(string quizId, string questionId)
     {
@@ -49,21 +55,6 @@ public class QuizRepository
         var update = Builders<Quiz>.Update.Push(q => q.Questions, foundQuestion);
 
         _quizes.UpdateOne(quizFilter, update);
-    }
-
-    public void AddCategoryToQuestion(string questionId, string categoryId)
-    {
-        var questionObjectId = ObjectId.Parse(questionId);
-        var categoryObjectId = ObjectId.Parse(categoryId);
-
-        var questionFilter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
-        var categoryFilter = Builders<Category>.Filter.Eq(c => c.Id, categoryObjectId);
-
-        var foundCategory = _categories.Find(categoryFilter).FirstOrDefault();
-
-        var update = Builders<Question>.Update.Push(q => q.Categories, foundCategory);
-
-        _questions.UpdateOne(questionFilter, update);
     }
 
     public void RemoveQuestionFromQuiz(string quizId, string questionId)
@@ -90,14 +81,6 @@ public class QuizRepository
             ).ToList()));
 
         return allQuestions.ToList();
-    }
-
-    public List<CategoryRecord> GetAllCategories()
-    {
-        var filter = Builders<Category>.Filter.Empty;
-        var allCategories = _categories.Find(filter).ToList().Select(c => new CategoryRecord(c.Id.ToString(), c.Name));
-
-        return allCategories.ToList();
     }
 
     public List<QuestionRecord> GetAllQuestionsFromQuiz(string quizId)
@@ -186,6 +169,119 @@ public class QuizRepository
 
         _quizes.InsertOne(newQuiz);
     }
+
+    #endregion
+
+    public void AddCategoryToQuestion(string questionId, string categoryId)
+    {
+        var questionObjectId = ObjectId.Parse(questionId);
+        var categoryObjectId = ObjectId.Parse(categoryId);
+
+        var questionFilter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+        var categoryFilter = Builders<Category>.Filter.Eq(c => c.Id, categoryObjectId);
+
+        var foundCategory = _categories.Find(categoryFilter).FirstOrDefault();
+
+        var update = Builders<Question>.Update.Push(q => q.Categories, foundCategory);
+
+        _questions.UpdateOne(questionFilter, update);
+    }
+
+    public void RemoveCategoryFromQuestion(string questionId, string categoryId)
+    {
+        var questionObjectId = ObjectId.Parse(questionId);
+        var categoryObjectId = ObjectId.Parse(categoryId);
+
+        var questionFilter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+        var categoryFilter = Builders<Category>.Filter.Eq(q => q.Id, categoryObjectId);
+
+        var foundCategory = _categories.Find(categoryFilter).FirstOrDefault();
+
+        var update = Builders<Question>.Update.Pull(q => q.Categories, foundCategory);
+
+        _questions.UpdateOne(questionFilter, update);
+    }
+
+    public void AddCategory(CategoryRecord categoryRecord)
+    {
+        var newCategory = new Category()
+        {
+            Name = categoryRecord.Name,
+        };
+
+        _categories.InsertOne(newCategory);
+    }
+
+
+    public List<CategoryRecord> GetAllCategories()
+    {
+        var filter = Builders<Category>.Filter.Empty;
+        var allCategories = _categories.Find(filter).ToList().Select(c => new CategoryRecord(c.Id.ToString(), c.Name));
+
+        return allCategories.ToList();
+    }
+
+    public List<QuestionRecord> GetAllQuestionsWithFilter(string categoryId)
+    {
+        var categoryObjectId = ObjectId.Parse(categoryId);
+
+        var categoryFilter = Builders<Category>.Filter.Eq(c => c.Id, categoryObjectId);
+        var questionFilter = Builders<Question>.Filter.ElemMatch(q => q.Categories, categoryFilter);
+
+        var allFilteredQuestions = _questions.Find(questionFilter).ToList().Select(q =>
+            new QuestionRecord(q.Id.ToString(), q.Description, q.Answers, q.CorrectAnswer, q.Categories.Select(c =>
+                new CategoryRecord(c.Id.ToString(), c.Name)
+            ).ToList()));
+
+        return allFilteredQuestions.ToList();
+    }
+
+    public List<Category> GetAllCategoriesFromQuestion(string questionId)
+    {
+        var questionObjectId = ObjectId.Parse(questionId);
+
+        var filter = Builders<Question>.Filter.Eq(q => q.Id, questionObjectId);
+        var allCategories = _questions.Find(filter).ToList().SelectMany(c => new List<Category>(c.Categories));
+
+
+
+        return allCategories.ToList();
+    }
+
+
+    public void AddQuestionWithCategories(QuestionRecord questionRecord)
+    {
+        List<Category> categoryList = new List<Category>();
+
+        foreach (var category in questionRecord.Categories)
+        {
+            categoryList.Add(ConvertCategoryRecordToCategory(category));
+        }
+
+
+        var newQuestion = new Question()
+        {
+            Description = questionRecord.Description,
+            Answers = questionRecord.Answers,
+            CorrectAnswer = questionRecord.CorrectAnswer,
+            Categories = categoryList
+        };
+
+        _questions.InsertOne(newQuestion);
+    }
+
+    public Category ConvertCategoryRecordToCategory(CategoryRecord categoryRecord)
+    {
+        var newCategory = new Category()
+        {
+            Id = ObjectId.Parse(categoryRecord.Id),
+            Name = categoryRecord.Name
+        };
+
+        return newCategory;
+    }
+
+    
 
     public Question ConvertQuestionRecordToQuestion(QuestionRecord questionRecord)
     {

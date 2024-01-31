@@ -27,10 +27,13 @@ namespace Labb3WPF.Views
         public ObservableCollection<QuestionModel> Questions { get; set; } = new();
         public ObservableCollection<AnswerModel> Answers { get; set; } = new();
         public ObservableCollection<CategoryModel> Categories { get; set; } = new();
+        public ObservableCollection<CategoryModel> CategoriesInQuestion { get; set; } = new();
 
         public QuestionModel? SelectedQuestion { get; set; } = new();
         public AnswerModel? SelectedAnswer { get; set; } = new();
         public CategoryModel? SelectedCategory { get; set; } = new();
+        public CategoryModel? SelectedCategoriesInQuestion { get; set; } = new();
+        public CategoryModel? SelectedCategoryInFilter { get; set; } = new();
 
 
         public QuestionsView()
@@ -41,13 +44,9 @@ namespace Labb3WPF.Views
 
             _repo = new QuizRepository();
 
-            var allQuestions = _repo.GetAllQuestions();
+            PopulateQuestionList();
 
-            foreach (var question in allQuestions)
-            {
-                //Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description, Categories = question.Categories});
-                Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description});
-            }
+            
 
             var allCategories = _repo.GetAllCategories();
 
@@ -66,9 +65,11 @@ namespace Labb3WPF.Views
             }
 
             Answers.Clear();
+            CategoriesInQuestion.Clear();
 
             var allAnswers = _repo.GetAllAnswersFromQuestion(SelectedQuestion.Id);
             var correctAnswer = _repo.GetCorrectAnswerFromQuestion(SelectedQuestion.Id);
+            var categories = _repo.GetAllCategoriesFromQuestion(SelectedQuestion.Id);
 
             for (int i = 0; i < allAnswers.Count; i++)
             {
@@ -81,6 +82,11 @@ namespace Labb3WPF.Views
                     Answers.Add(new AnswerModel() { Text = allAnswers[i], IsCorrect = false });
                 }
             }
+
+            foreach (var category in categories)
+            {
+                CategoriesInQuestion.Add(new CategoryModel(){Id = category.Id.ToString(), Name = category.Name});
+            }
         }
 
         private void AddCategoryToQuestionBtn_OnClick(object sender, RoutedEventArgs e)
@@ -91,6 +97,51 @@ namespace Labb3WPF.Views
             }
 
             _repo.AddCategoryToQuestion(SelectedQuestion.Id, SelectedCategory.Id);
+            CategoriesInQuestion.Add(SelectedCategory);
+        }
+
+        private void RemoveCategoryFromQuestionBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedCategoriesInQuestion is null)
+            {
+                return;
+            }
+
+            _repo.RemoveCategoryFromQuestion(SelectedQuestion.Id, SelectedCategoriesInQuestion.Id);
+            CategoriesInQuestion.Remove(SelectedCategoriesInQuestion);
+        }
+
+        private void CategoriesBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var categoryId = SelectedCategoryInFilter.Id;
+
+
+            Questions.Clear();
+
+            var allQuestionsWithFilter = _repo.GetAllQuestionsWithFilter(categoryId);
+
+            foreach (var question in allQuestionsWithFilter)
+            {
+                //Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description, Categories = question.Categories});
+                Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description });
+            }
+        }
+
+        private void PopulateQuestionList()
+        {
+            var allQuestions = _repo.GetAllQuestions();
+
+            foreach (var question in allQuestions)
+            {
+                //Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description, Categories = question.Categories});
+                Questions.Add(new QuestionModel() { Id = question.Id, Answers = question.Answers, CorrectAnswer = question.CorrectAnswer, Description = question.Description });
+            }
+        }
+
+        private void ResetFilterBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            Questions.Clear();
+            PopulateQuestionList();
         }
     }
 }

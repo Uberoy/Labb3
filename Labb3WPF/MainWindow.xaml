@@ -15,6 +15,9 @@
             <TabItem Header ="Quizes">
                 <views:QuizView/>
             </TabItem>
+            <TabItem Header ="Categories">
+                <views:CategoryView/>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>

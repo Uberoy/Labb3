@@ -8,12 +8,14 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <ListView
             Name="QuestionsLv"
@@ -41,7 +43,7 @@
             </ListView.View>
         </ListView>
         <ListView
-            Grid.Column="1"
+            Grid.Column="3"
             Grid.Row="0"
             Name="CategoriesLv"
             ItemsSource="{Binding Categories}"
@@ -53,8 +55,20 @@
             </ListView.View>
         </ListView>
         <ListView
-            Grid.Column="0"
-            Grid.Row="1"
+            Grid.Column="2"
+            Grid.Row="0"
+            Name="CategoriesInQuestionLv"
+            ItemsSource="{Binding CategoriesInQuestion}"
+            SelectedItem="{Binding SelectedCategoriesInQuestion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Category"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView
+            Grid.Column="1"
+            Grid.Row="0"
             Name="AnswersLv"
             ItemsSource="{Binding Answers}"
             SelectedItem="{Binding SelectedAnswer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
@@ -66,10 +80,31 @@
             </ListView.View>
         </ListView>
         <Button
-            Grid.Column="1"
+            Grid.Column="3"
             Grid.Row="1"
             Name="AddCategoryToQuestionBtn"
             Content="Add to question"
             Click="AddCategoryToQuestionBtn_OnClick"></Button>
+        <Button
+            Grid.Column="2"
+            Grid.Row="1"
+            Name="RemoveCategoryFromQuestionBtn"
+            Content="Remove from question"
+            Click="RemoveCategoryFromQuestionBtn_OnClick"></Button>
+        <Button
+            Grid.Column="1"
+            Grid.Row="1"
+            Name="ResetFilterBtn"
+            Content="Reset Filter"
+            Click="ResetFilterBtn_OnClick"></Button>
+        <ComboBox
+            Grid.Column="0"
+            Grid.Row="1"
+            Name="CategoriesBox"
+            ItemsSource="{Binding Categories}"
+            SelectedItem="{Binding SelectedCategoryInFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            DisplayMemberPath="Name"
+            SelectionChanged="CategoriesBox_OnSelectionChanged"/>
+
     </Grid>
 </UserControl>

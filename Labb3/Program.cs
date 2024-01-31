@@ -3,10 +3,10 @@ using Labb3Console.Models;
 
 var _repo = new QuizRepository();
 
-RemoveQuestionFromQuiz();
+AddCategory();
 
-
-
+//Gamla funktioner pre-categories
+#region
 void AddQuestionToQuiz()
 {
     PrintAllQuizes();
@@ -111,39 +111,41 @@ void PrintAllQuizes()
     }
 }
 
-void AddQuestion()
-{
-    var newQuestion = new QuestionModel();
-    Console.WriteLine("Fråga: ");
-    newQuestion.Description = Console.ReadLine();
+//void AddQuestion()
+//{
+//    var newQuestion = new QuestionModel();
+//    Console.WriteLine("Fråga: ");
+//    newQuestion.Description = Console.ReadLine();
 
-    string[] text = new string[4];
-    for (int i = 0; i < text.Length; i++)
-    {
-        Console.WriteLine($"Alternativ {i+1}: ");
-        text[i] = Console.ReadLine();
-    }
+//    string[] text = new string[4];
+//    for (int i = 0; i < text.Length; i++)
+//    {
+//        Console.WriteLine($"Alternativ {i+1}: ");
+//        text[i] = Console.ReadLine();
+//    }
 
-    Console.WriteLine("Vilket alternativ är korrekt?");
-    newQuestion.CorrectAnswer = Convert.ToInt32(Console.ReadLine()) - 1;
+//    Console.WriteLine("Vilket alternativ är korrekt?");
+//    newQuestion.CorrectAnswer = Convert.ToInt32(Console.ReadLine()) - 1;
 
-    var questionRecord = new QuestionRecord("", newQuestion.Description, new List<string>(text), newQuestion.CorrectAnswer);
+//    var questionRecord = new QuestionRecord("", newQuestion.Description, new List<string>(text), newQuestion.CorrectAnswer);
 
-    _repo.AddQuestion(questionRecord);
-}
+//    _repo.AddQuestion(questionRecord);
+//}
 
-void AddQuestionDebug()
-{
-    var newQuestion = new QuestionModel();
-    newQuestion.Description = "Vilken siffra är högst?";
-    string[] text = { "10", "200", "3 000", "40 000" };
-    newQuestion.Answers = new List<string>(text);
-    newQuestion.CorrectAnswer = 3;
 
-    var questionRecord = new QuestionRecord("", newQuestion.Description, new List<string>(text), newQuestion.CorrectAnswer);
 
-    _repo.AddQuestion(questionRecord);
-}
+//void AddQuestionDebug()
+//{
+//    var newQuestion = new QuestionModel();
+//    newQuestion.Description = "Vilken siffra är högst?";
+//    string[] text = { "10", "200", "3 000", "40 000" };
+//    newQuestion.Answers = new List<string>(text);
+//    newQuestion.CorrectAnswer = 3;
+
+//    var questionRecord = new QuestionRecord("", newQuestion.Description, new List<string>(text), newQuestion.CorrectAnswer);
+
+//    _repo.AddQuestion(questionRecord);
+//}
 
 void AddQuiz()
 {
@@ -168,4 +170,116 @@ void AddQuizDebug()
     var quizRecord = new QuizRecord("", newQuiz.Name, newQuiz.Description, allQuestions);
 
     _repo.AddQuiz(quizRecord);
+}
+
+#endregion
+
+
+void AddQuestionWithCategories()
+{
+    var newQuestion = new QuestionModel();
+    Console.WriteLine("Fråga: ");
+    newQuestion.Description = Console.ReadLine();
+
+    string[] text = new string[4];
+    for (int i = 0; i < text.Length; i++)
+    {
+        Console.WriteLine($"Alternativ {i + 1}: ");
+        text[i] = Console.ReadLine();
+    }
+
+    Console.WriteLine("Vilket alternativ är korrekt?");
+    newQuestion.CorrectAnswer = Convert.ToInt32(Console.ReadLine()) - 1;
+
+    var questionRecord = new QuestionRecord("", newQuestion.Description, new List<string>(text), newQuestion.CorrectAnswer, new List<CategoryRecord>());
+
+    _repo.AddQuestionWithCategories(questionRecord);
+}
+
+void AddCategory()
+{
+    var newCategory = new CategoryModel();
+    Console.WriteLine("Kategori: ");
+    newCategory.Name = Console.ReadLine();
+
+    var categoryRecord = new CategoryRecord("", newCategory.Name);
+
+    _repo.AddCategory(categoryRecord);
+}
+
+void AddCategoryToQuestion()
+{
+    PrintAllQuizes();
+
+    Console.WriteLine("Vilken fråga vill du lägga till en kategori på?");
+
+    string selectedQuestion;
+    Console.WriteLine("QuestionId: ");
+    selectedQuestion = Console.ReadLine();
+
+    Console.WriteLine("Vilken kategori vill du lägga till på frågan?");
+
+    string selectedCategory;
+    Console.WriteLine("KategoriId: ");
+    selectedCategory = Console.ReadLine();
+
+    _repo.AddCategoryToQuestion(selectedQuestion, selectedCategory);
+}
+
+void GetAllCategories()
+{
+    var allCategories = _repo.GetAllCategories();
+
+    foreach (var category in allCategories)
+    {
+        Console.WriteLine($"Id: {category.Id}");
+        Console.WriteLine(category.Name);
+    }
+}
+
+void PrintAllQuestionsWithCategories()
+{
+    var allQuestions = _repo.GetAllQuestions();
+
+    foreach (var question in allQuestions)
+    {
+        Console.WriteLine($"Id: {question.Id}");
+        Console.WriteLine(question.Description);
+        foreach (var answer in question.Answers)
+        {
+            Console.WriteLine(answer);
+        }
+
+        foreach (var category in question.Categories)
+        {
+            Console.WriteLine($"Kategori-ID: {category.Id}");
+            Console.WriteLine(category.Name);
+        }
+    }
+}
+
+void PrintAllQuizesWithCategories()
+{
+    var allQuizes = _repo.GetAllQuizzesWithQuestions();
+
+    foreach (var quiz in allQuizes)
+    {
+        Console.WriteLine($"Id(Quiz): {quiz.Id}");
+        Console.WriteLine($"Namn på Quiz: {quiz.Name}");
+        Console.WriteLine($"Beskrivning av Quiz: {quiz.Description}");
+
+        foreach (var question in quiz.Questions)
+        {
+            Console.WriteLine($"Id(Fråga): {question.Id}");
+            foreach (var category in question.Categories)
+            {
+                Console.WriteLine($"Kategorier: {category.Name}");
+            }
+            Console.WriteLine($"Beskrivning av fråga: {question.Description}");
+            foreach (var answer in question.Answers)
+            {
+                Console.WriteLine($"Svarsalternativ på fråga: {answer}");
+            }
+        }
+    }
 }
